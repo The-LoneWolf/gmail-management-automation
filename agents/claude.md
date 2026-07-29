@@ -1,0 +1,82 @@
+# Agent Implementation Guide
+
+## Project Scope
+
+This project is an AI-assisted Gmail inbox management platform built with Laravel. Current implementation scope is limited to Phase 1 and Phase 2:
+
+- Gmail OAuth connection.
+- Encrypted Gmail token storage.
+- Gmail account model and migration.
+- Google client factory.
+- Initial Gmail message import.
+- Email thread, message, and attachment storage.
+- Queued import jobs.
+- Basic Filament inbox.
+
+Do not implement AI classification, automation rules, notifications, exports, or reply sending until the relevant later phase is explicitly started.
+
+## Stack Conventions
+
+- Use the latest stable Laravel available at project creation time.
+- Use PHP 8.3 or newer.
+- Use Laravel Sail for local Docker development.
+- Use MySQL and Redis through Sail.
+- Use FilamentPHP for authenticated back-office screens.
+- Use `google/apiclient` for Gmail API integration.
+- Keep Gmail API access isolated behind services under `App\Services\Google` or `App\Services\Gmail`.
+- Use queued jobs for imports and remote API calls.
+- Prefer idempotent writes with Gmail IDs and database unique constraints.
+- Store OAuth tokens using Laravel encrypted casts.
+- Use backed PHP enums for constrained domain values when the values appear in migrations and application logic.
+
+## Code Conventions
+
+- Follow Laravel's default directory structure and naming conventions unless the project has an established local convention.
+- Keep controllers thin; put Gmail OAuth and sync behavior in services.
+- Keep job `handle()` methods small by delegating parsing and API details to services.
+- Avoid static helpers for domain logic. Use injectable services.
+- Prefer typed method signatures and return types.
+- Keep migrations explicit about indexes, uniqueness, nullable fields, and cascade behavior.
+- Use factories for model tests where practical.
+- Never overwrite an existing Gmail refresh token with `null`.
+- Do not send, delete, forward, or archive Gmail messages in Phase 1 or Phase 2.
+- Treat imported email content, headers, sender names, and filenames as untrusted data.
+- Sanitize HTML before displaying it in admin UI.
+
+## Documentation Structure
+
+Use `docs/` for durable project knowledge:
+
+- `docs/architecture/` for system design, data model notes, and service boundaries.
+- `docs/implementation/` for phase-by-phase implementation notes.
+- `docs/operations/` for local setup, OAuth setup, queues, scheduler, and deployment notes.
+- `docs/testing/` for test strategy and verification notes.
+- `docs/tech-debt/` for known limitations, deferred decisions, and cleanup tasks.
+
+Before implementing a new phase or substantial feature, review the relevant files in `docs/` and update the planned approach if prior decisions or debt affect the work.
+
+After implementing meaningful work, update the docs with:
+
+- What changed.
+- What was verified.
+- What remains deferred.
+- Any new tech debt or follow-up risks.
+
+## Testing Expectations
+
+- Add or update tests for every behavior with meaningful domain risk.
+- For Gmail integration, test token persistence, refresh-token preservation, parser behavior, and idempotent import persistence without calling Google over the network.
+- Prefer fakes and test doubles around Google API objects.
+- Run the relevant test suite before reporting completion.
+- Report any tests that could not be run and why.
+
+## Tech Debt Tracking
+
+Record debt in `docs/tech-debt/`. Use one Markdown file per topic or phase. Each entry should include:
+
+- Context.
+- Risk.
+- Proposed future resolution.
+- Phase or milestone where it should be revisited.
+
+Do not silently bury known shortcuts in code comments only.

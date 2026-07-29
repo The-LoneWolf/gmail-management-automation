@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Filament\Resources\EmailMessages\Pages;
+
+use App\Filament\Resources\EmailMessages\EmailMessageResource;
+use Filament\Resources\Pages\ListRecords;
+
+class ListEmailMessages extends ListRecords
+{
+    protected static string $resource = EmailMessageResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
+}

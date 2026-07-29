@@ -1,0 +1,17 @@
+# Phase 1 and Phase 2 Verification
+
+## Automated Coverage
+
+- Token encryption at rest.
+- Refresh-token preservation when Google returns no new refresh token.
+- Gmail parser header/body/label/attachment extraction.
+- HTML sanitization for basic unsafe tags and inline handlers.
+- Idempotent message import by Gmail message ID.
+
+## Test Command
+
+```bash
+php artisan test
+```
+
+Tests use SQLite in memory through `phpunit.xml`, so Docker is not required for the automated suite.
