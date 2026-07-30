@@ -18,7 +18,7 @@ Do not implement AI classification, automation rules, notifications, exports, or
 ## Stack Conventions
 
 - Use the latest stable Laravel available at project creation time.
-- Use PHP 8.3 or newer.
+- Use PHP 8.4 or newer. The current Laravel/Symfony dependency set requires PHP >= 8.4.1.
 - Use Laravel Sail for local Docker development.
 - Use MySQL and Redis through Sail.
 - Use FilamentPHP for authenticated back-office screens.

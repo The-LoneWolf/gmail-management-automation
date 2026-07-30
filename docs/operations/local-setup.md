@@ -2,6 +2,8 @@
 
 ## Sail
 
+The current dependency set requires PHP >= 8.4.1. Sail is the recommended local runtime.
+
 Install dependencies and start the app:
 
 ```bash
