@@ -35,4 +35,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(GmailAccount::class);
     }
+
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topic::class);
+    }
+
+    public function states(): HasMany
+    {
+        return $this->hasMany(State::class);
+    }
 }

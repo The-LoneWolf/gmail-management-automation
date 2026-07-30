@@ -1,0 +1,26 @@
+# Test Environment
+
+The project includes `.env.testing` for local test execution.
+
+Key settings:
+
+- `DB_CONNECTION=sqlite`
+- `DB_DATABASE=:memory:`
+- `CACHE_STORE=array`
+- `SESSION_DRIVER=array`
+- `QUEUE_CONNECTION=sync`
+- `MAIL_MAILER=array`
+
+Run the suite:
+
+```bash
+php artisan test
+```
+
+Verify migrations and seeders:
+
+```bash
+php artisan migrate:fresh --seed --env=testing
+```
+
+The testing `APP_KEY` is intentionally committed because it is only used for deterministic local encryption tests. Production and local development must use their own generated keys.

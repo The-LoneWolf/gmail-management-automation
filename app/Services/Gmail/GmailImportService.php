@@ -3,6 +3,7 @@
 namespace App\Services\Gmail;
 
 use App\Enums\EmailProcessingStatus;
+use App\Jobs\ClassifyEmailWithAi;
 use App\Models\EmailMessage;
 use App\Models\EmailThread;
 use App\Models\GmailAccount;
@@ -64,6 +65,10 @@ class GmailImportService
 
         if ($parsed['history_id']) {
             $account->update(['history_id' => $parsed['history_id']]);
+        }
+
+        if ($message->wasRecentlyCreated || $message->ai_processed_at === null) {
+            ClassifyEmailWithAi::dispatch($message->id);
         }
 
         return $message;

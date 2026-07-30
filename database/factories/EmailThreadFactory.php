@@ -22,9 +22,11 @@ class EmailThreadFactory extends Factory
             'gmail_account_id' => GmailAccount::factory(),
             'gmail_thread_id' => fake()->unique()->uuid(),
             'subject' => fake()->sentence(),
-            'participants' => [],
+            'participants' => [
+                ['name' => fake()->name(), 'email' => fake()->safeEmail()],
+            ],
             'last_message_at' => now(),
-            'message_count' => 0,
+            'message_count' => 1,
         ];
     }
 }

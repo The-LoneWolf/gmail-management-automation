@@ -25,6 +25,8 @@ class GmailAccountFactory extends Factory
             'access_token' => 'access-token',
             'refresh_token' => 'refresh-token',
             'token_expires_at' => now()->addHour(),
+            'history_id' => (string) fake()->numberBetween(100000, 999999),
+            'last_synced_at' => now(),
             'sync_status' => GmailAccountStatus::Connected,
         ];
     }

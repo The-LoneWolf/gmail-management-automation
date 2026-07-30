@@ -33,3 +33,12 @@ Gmail imports are queued. During development run:
 ```bash
 ./vendor/bin/sail artisan queue:work
 ```
+
+## Test Environment
+
+Run local tests without Docker:
+
+```bash
+php artisan test
+php artisan migrate:fresh --seed --env=testing
+```

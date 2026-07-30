@@ -48,6 +48,11 @@ class EmailThread extends Model
         return $this->belongsTo(User::class, 'assigned_user_id');
     }
 
+    public function currentState(): BelongsTo
+    {
+        return $this->belongsTo(State::class, 'current_state_id');
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(EmailMessage::class);

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
@@ -79,5 +80,17 @@ class EmailMessage extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(EmailAttachment::class);
+    }
+
+    public function topics(): BelongsToMany
+    {
+        return $this->belongsToMany(Topic::class, 'email_message_topic')
+            ->withPivot(['confidence', 'matched_by', 'reasoning', 'confirmed_at', 'rejected_at'])
+            ->withTimestamps();
+    }
+
+    public function classifications(): HasMany
+    {
+        return $this->hasMany(EmailClassification::class);
     }
 }
