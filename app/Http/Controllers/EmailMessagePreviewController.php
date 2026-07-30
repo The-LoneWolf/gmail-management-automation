@@ -18,7 +18,26 @@ class EmailMessagePreviewController extends Controller
         return response($this->document($body))
             ->header('Content-Type', 'text/html; charset=UTF-8')
             ->header('X-Content-Type-Options', 'nosniff')
-            ->header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src 'none'; base-uri 'none'; form-action 'none'");
+            ->header('Referrer-Policy', 'no-referrer')
+            ->header('Content-Security-Policy', $this->contentSecurityPolicy());
+    }
+
+    private function contentSecurityPolicy(): string
+    {
+        return implode('; ', [
+            "default-src 'none'",
+            "script-src 'none'",
+            "style-src 'unsafe-inline' http: https:",
+            'img-src http: https: data: blob:',
+            'font-src http: https: data:',
+            'media-src http: https: data: blob:',
+            "connect-src 'none'",
+            "object-src 'none'",
+            "frame-src 'none'",
+            "base-uri 'none'",
+            "form-action 'none'",
+            "frame-ancestors 'self'",
+        ]);
     }
 
     private function document(string $body): string
@@ -40,7 +59,10 @@ class EmailMessagePreviewController extends Controller
                             line-height: 1.55;
                         }
                         table { max-width: 100%; }
-                        img { display: none !important; }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
                         a { color: #2563eb; word-break: break-word; }
                         pre, code { white-space: pre-wrap; word-break: break-word; }
                     </style>

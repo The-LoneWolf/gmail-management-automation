@@ -29,7 +29,7 @@ class EmailMessageForm
                     ->label('Formatted body')
                     ->content(fn (?EmailMessage $record): HtmlString => new HtmlString(
                         $record
-                            ? '<iframe src="'.e(route('email-messages.preview', $record)).'" sandbox="" style="width: 100%; min-height: 640px; border: 1px solid #e5e7eb; border-radius: 8px; background: white;"></iframe>'
+                            ? '<iframe src="'.e(route('email-messages.preview', $record)).'" sandbox="allow-same-origin" referrerpolicy="no-referrer" style="width: 100%; min-height: 640px; border: 1px solid #e5e7eb; border-radius: 8px; background: white;"></iframe>'
                             : 'No message selected.',
                     ))
                     ->columnSpanFull(),
