@@ -40,4 +40,19 @@ class GoogleOAuthConfigurationTest extends TestCase
         $this->assertTrue($factory->isConfigured());
         $this->assertStringContainsString('client_id=db-client-id.apps.googleusercontent.com', urldecode($client->createAuthUrl()));
     }
+
+    public function test_google_client_factory_splits_comma_joined_database_scopes(): void
+    {
+        GoogleOAuthConfiguration::factory()->create([
+            'client_id' => 'db-client-id.apps.googleusercontent.com',
+            'client_secret' => 'db-secret',
+            'scopes' => ['openid,email,profile,https://www.googleapis.com/auth/gmail.modify'],
+            'is_active' => true,
+        ]);
+
+        $authUrl = urldecode(app(GoogleClientFactory::class)->make()->createAuthUrl());
+
+        $this->assertStringContainsString('scope=openid email profile https://www.googleapis.com/auth/gmail.modify', $authUrl);
+        $this->assertStringNotContainsString('openid,email,profile', $authUrl);
+    }
 }

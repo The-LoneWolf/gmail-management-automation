@@ -95,7 +95,24 @@ class GoogleClientFactory
             'client_id' => (string) ($configuration?->client_id ?: config('services.google.client_id')),
             'client_secret' => (string) ($configuration?->client_secret ?: config('services.google.client_secret')),
             'redirect_uri' => (string) ($configuration?->redirect_uri ?: config('services.google.redirect_uri')),
-            'scopes' => $configuration?->scopes ?: config('services.google.gmail_scopes', []),
+            'scopes' => $this->normalizeScopes($configuration?->scopes ?: config('services.google.gmail_scopes', [])),
         ];
+    }
+
+    /**
+     * @param  array<int, string>|string  $scopes
+     * @return array<int, string>
+     */
+    private function normalizeScopes(array|string $scopes): array
+    {
+        $scopes = is_array($scopes) ? $scopes : [$scopes];
+
+        return collect($scopes)
+            ->flatMap(fn (string $scope): array => preg_split('/[\s,]+/', $scope, -1, PREG_SPLIT_NO_EMPTY) ?: [])
+            ->map(fn (string $scope): string => trim($scope))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }
