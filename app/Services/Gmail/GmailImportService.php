@@ -56,8 +56,11 @@ class GmailImportService
 
         foreach ($parsed['attachments'] as $attachment) {
             $message->attachments()->updateOrCreate(
-                ['gmail_attachment_id' => $attachment['gmail_attachment_id']],
-                Arr::only($attachment, ['filename', 'mime_type', 'size_bytes']),
+                ['gmail_attachment_key' => $this->attachmentKey($attachment['gmail_attachment_id'])],
+                [
+                    'gmail_attachment_id' => $attachment['gmail_attachment_id'],
+                    ...Arr::only($attachment, ['filename', 'mime_type', 'size_bytes']),
+                ],
             );
         }
 
@@ -87,6 +90,11 @@ class GmailImportService
                 'last_message_at' => $parsed['received_at'],
             ],
         );
+    }
+
+    private function attachmentKey(string $gmailAttachmentId): string
+    {
+        return hash('sha256', $gmailAttachmentId);
     }
 
     private function refreshThreadCounters(EmailThread $thread): void

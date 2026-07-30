@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'email_message_id',
     'gmail_attachment_id',
+    'gmail_attachment_key',
     'filename',
     'mime_type',
     'size_bytes',

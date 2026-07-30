@@ -35,7 +35,22 @@ class ImportGmailMessageTest extends TestCase
         $this->assertSame('67890', $account->fresh()->history_id);
     }
 
-    private function gmailMessage(string $subject): Message
+    public function test_import_accepts_long_gmail_attachment_ids(): void
+    {
+        $account = GmailAccount::factory()->create();
+        $service = app(GmailImportService::class);
+        $attachmentId = str_repeat('ANGjdJ_', 80);
+
+        $service->import($account, $this->gmailMessage('Long attachment ID', $attachmentId));
+
+        $attachment = EmailAttachment::first();
+
+        $this->assertNotNull($attachment);
+        $this->assertSame($attachmentId, $attachment->gmail_attachment_id);
+        $this->assertSame(hash('sha256', $attachmentId), $attachment->gmail_attachment_key);
+    }
+
+    private function gmailMessage(string $subject, string $attachmentId = 'att-1'): Message
     {
         return new Message([
             'id' => 'msg-1',
@@ -59,7 +74,7 @@ class ImportGmailMessageTest extends TestCase
                     new MessagePart([
                         'filename' => 'file.pdf',
                         'mimeType' => 'application/pdf',
-                        'body' => new MessagePartBody(['attachmentId' => 'att-1', 'size' => 99]),
+                        'body' => new MessagePartBody(['attachmentId' => $attachmentId, 'size' => 99]),
                     ]),
                 ],
             ]),

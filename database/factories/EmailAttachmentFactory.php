@@ -20,7 +20,8 @@ class EmailAttachmentFactory extends Factory
     {
         return [
             'email_message_id' => EmailMessage::factory(),
-            'gmail_attachment_id' => fake()->unique()->uuid(),
+            'gmail_attachment_id' => $gmailAttachmentId = fake()->unique()->uuid(),
+            'gmail_attachment_key' => hash('sha256', $gmailAttachmentId),
             'filename' => fake()->word().'.pdf',
             'mime_type' => 'application/pdf',
             'size_bytes' => fake()->numberBetween(1000, 100000),
