@@ -45,4 +45,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(State::class);
     }
+
+    public function extractionTemplates(): HasMany
+    {
+        return $this->hasMany(ExtractionTemplate::class);
+    }
+
+    public function exportTemplates(): HasMany
+    {
+        return $this->hasMany(ExportTemplate::class);
+    }
+
+    public function automationRules(): HasMany
+    {
+        return $this->hasMany(AutomationRule::class);
+    }
+
+    public function notificationChannels(): HasMany
+    {
+        return $this->hasMany(NotificationChannel::class);
+    }
 }

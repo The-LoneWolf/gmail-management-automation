@@ -57,4 +57,9 @@ class EmailThread extends Model
     {
         return $this->hasMany(EmailMessage::class);
     }
+
+    public function replyDrafts(): HasMany
+    {
+        return $this->hasMany(ReplyDraft::class);
+    }
 }

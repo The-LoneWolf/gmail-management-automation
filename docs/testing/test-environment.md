@@ -23,4 +23,6 @@ Verify migrations and seeders:
 php artisan migrate:fresh --seed --env=testing
 ```
 
+Current suite coverage includes Gmail token storage/imports, sync queueing, classification, extraction, export generation, automation action gating, and reply draft approval gating.
+
 The testing `APP_KEY` is intentionally committed because it is only used for deterministic local encryption tests. Production and local development must use their own generated keys.

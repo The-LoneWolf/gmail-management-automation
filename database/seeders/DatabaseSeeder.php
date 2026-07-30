@@ -4,9 +4,13 @@ namespace Database\Seeders;
 
 use App\Enums\EmailDirection;
 use App\Enums\EmailProcessingStatus;
+use App\Models\AutomationRule;
 use App\Models\EmailMessage;
 use App\Models\EmailThread;
+use App\Models\ExportTemplate;
+use App\Models\ExtractionTemplate;
 use App\Models\GmailAccount;
+use App\Models\NotificationChannel;
 use App\Models\State;
 use App\Models\Topic;
 use App\Models\User;
@@ -61,6 +65,44 @@ class DatabaseSeeder extends Seeder
             ],
         ));
 
+        ExtractionTemplate::query()->updateOrCreate(
+            ['user_id' => $user->id, 'slug' => 'invoice-extraction'],
+            [
+                'name' => 'Invoice extraction',
+                'description' => 'Extract basic invoice fields from emails.',
+                'schema' => [
+                    'fields' => [
+                        'invoice_number' => ['type' => 'string', 'pattern' => 'invoice\\s*#?\\s*([A-Z0-9-]+)'],
+                        'amount' => ['type' => 'money'],
+                        'sender_email' => ['type' => 'email'],
+                    ],
+                ],
+                'instructions' => 'Capture invoice number, amount, and sender email.',
+                'output_format' => 'json',
+                'is_active' => true,
+            ],
+        );
+
+        ExportTemplate::query()->updateOrCreate(
+            ['user_id' => $user->id, 'name' => 'Inbox CSV export'],
+            [
+                'format' => 'csv',
+                'filters' => [],
+                'columns' => [
+                    ['label' => 'Received At', 'source' => 'email.received_at'],
+                    ['label' => 'Sender', 'source' => 'email.sender_email'],
+                    ['label' => 'Subject', 'source' => 'email.subject'],
+                    ['label' => 'Priority', 'source' => 'thread.priority'],
+                ],
+                'is_active' => true,
+            ],
+        );
+
+        $channel = NotificationChannel::query()->updateOrCreate(
+            ['user_id' => $user->id, 'type' => 'database', 'name' => 'Database inbox'],
+            ['configuration' => ['enabled' => true], 'is_active' => true],
+        );
+
         $account = GmailAccount::query()->firstOrCreate(
             ['user_id' => $user->id, 'google_email' => 'connected@example.com'],
             [
@@ -94,5 +136,24 @@ class DatabaseSeeder extends Seeder
                 'processing_status' => EmailProcessingStatus::Pending,
             ]);
         }
+
+        AutomationRule::query()->updateOrCreate(
+            ['user_id' => $user->id, 'name' => 'Notify on replies needed'],
+            [
+                'description' => 'Create a safe notification when a message requires a reply.',
+                'trigger' => 'email.classified',
+                'conditions' => [
+                    'all' => [
+                        ['field' => 'requires_reply', 'operator' => 'equals', 'value' => true],
+                    ],
+                ],
+                'actions' => [
+                    ['type' => 'notify', 'channel_id' => $channel->id],
+                ],
+                'priority' => 100,
+                'stop_processing' => false,
+                'is_active' => true,
+            ],
+        );
     }
 }

@@ -93,4 +93,14 @@ class EmailMessage extends Model
     {
         return $this->hasMany(EmailClassification::class);
     }
+
+    public function extractions(): HasMany
+    {
+        return $this->hasMany(EmailExtraction::class);
+    }
+
+    public function replyDrafts(): HasMany
+    {
+        return $this->hasMany(ReplyDraft::class);
+    }
 }

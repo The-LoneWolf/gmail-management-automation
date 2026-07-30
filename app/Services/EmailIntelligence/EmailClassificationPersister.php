@@ -5,6 +5,8 @@ namespace App\Services\EmailIntelligence;
 use App\Enums\ClassificationStatus;
 use App\Enums\EmailProcessingStatus;
 use App\Enums\TopicMatchSource;
+use App\Jobs\EvaluateAutomationRules;
+use App\Jobs\ExtractEmailDataWithAi;
 use App\Models\EmailClassification;
 use App\Models\EmailMessage;
 use App\Models\Topic;
@@ -60,6 +62,9 @@ class EmailClassificationPersister
             'requires_reply' => $result->requiresReply,
             'requires_human_review' => $result->requiresHumanReview,
         ]);
+
+        ExtractEmailDataWithAi::dispatch($message->id);
+        EvaluateAutomationRules::dispatch($message->id, 'email.classified');
 
         return $classification;
     }
