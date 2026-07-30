@@ -28,6 +28,20 @@ GOOGLE_GMAIL_SCOPES="openid,email,profile,https://www.googleapis.com/auth/gmail.
 
 The redirect URI must match the Google OAuth client exactly.
 
+For local Sail development with `APP_URL=http://localhost`, add this Authorized redirect URI to the Google OAuth client:
+
+```text
+http://localhost/gmail/oauth/callback
+```
+
+After editing `.env`, clear cached configuration:
+
+```bash
+./vendor/bin/sail artisan optimize:clear
+```
+
+If Google shows `Missing required parameter: client_id`, the app is still missing `GOOGLE_CLIENT_ID` or is serving stale cached config.
+
 ## Queues
 
 Gmail imports are queued. During development run:

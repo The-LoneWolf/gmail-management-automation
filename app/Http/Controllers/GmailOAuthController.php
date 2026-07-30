@@ -15,6 +15,12 @@ class GmailOAuthController extends Controller
 {
     public function redirect(GoogleClientFactory $clients): RedirectResponse
     {
+        abort_if(
+            blank(config('services.google.client_id')) || blank(config('services.google.client_secret')),
+            500,
+            'Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env, then clear Laravel config cache.',
+        );
+
         return redirect()->away($clients->make()->createAuthUrl());
     }
 
