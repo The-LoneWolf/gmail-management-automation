@@ -6,6 +6,8 @@ use App\Jobs\InitialGmailSync;
 use App\Jobs\SyncGmailAccount;
 use App\Jobs\SyncGmailHistory;
 use App\Models\GmailAccount;
+use App\Models\User;
+use App\Services\Gmail\QueueGmailAccountSyncs;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Queue;
@@ -48,5 +50,21 @@ class GmailHistorySyncTest extends TestCase
         Artisan::call('gmail:sync-accounts');
 
         Queue::assertPushed(SyncGmailAccount::class, 2);
+    }
+
+    public function test_queue_syncs_can_be_limited_to_one_user(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        GmailAccount::factory()->create(['user_id' => $user->id]);
+        GmailAccount::factory()->create(['user_id' => $otherUser->id]);
+        GmailAccount::factory()->create(['user_id' => $user->id, 'sync_status' => 'disabled']);
+
+        $count = app(QueueGmailAccountSyncs::class)->queue(userId: $user->id);
+
+        $this->assertSame(1, $count);
+        Queue::assertPushed(SyncGmailAccount::class, 1);
     }
 }

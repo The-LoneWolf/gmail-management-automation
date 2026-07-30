@@ -2,14 +2,18 @@
 
 namespace App\Filament\Resources\EmailMessages\Tables;
 
+use App\Services\Gmail\QueueGmailAccountSyncs;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class EmailMessagesTable
 {
@@ -70,6 +74,17 @@ class EmailMessagesTable
                 EditAction::make(),
             ])
             ->toolbarActions([
+                Action::make('sync_latest')
+                    ->label('Sync latest')
+                    ->icon('heroicon-o-arrow-path')
+                    ->action(function (): void {
+                        $count = app(QueueGmailAccountSyncs::class)->queue(userId: Auth::id());
+
+                        Notification::make()
+                            ->title("Queued {$count} Gmail sync job(s)")
+                            ->success()
+                            ->send();
+                    }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
