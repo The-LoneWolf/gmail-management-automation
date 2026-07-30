@@ -4,24 +4,34 @@ namespace App\Services\Google;
 
 use App\Enums\GmailAccountStatus;
 use App\Models\GmailAccount;
+use App\Models\GoogleOAuthConfiguration;
 use Carbon\CarbonImmutable;
 use Google\Client;
 use Google\Service\Gmail;
+use Illuminate\Support\Facades\Schema;
 
 class GoogleClientFactory
 {
     public function make(): Client
     {
+        $credentials = $this->credentials();
         $client = new Client;
-        $client->setClientId((string) config('services.google.client_id'));
-        $client->setClientSecret((string) config('services.google.client_secret'));
-        $client->setRedirectUri((string) config('services.google.redirect_uri'));
+        $client->setClientId($credentials['client_id']);
+        $client->setClientSecret($credentials['client_secret']);
+        $client->setRedirectUri($credentials['redirect_uri']);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
         $client->setIncludeGrantedScopes(true);
-        $client->setScopes(config('services.google.gmail_scopes', []));
+        $client->setScopes($credentials['scopes']);
 
         return $client;
+    }
+
+    public function isConfigured(): bool
+    {
+        $credentials = $this->credentials();
+
+        return filled($credentials['client_id']) && filled($credentials['client_secret']);
     }
 
     public function forGmailAccount(GmailAccount $account): Client
@@ -70,5 +80,22 @@ class GoogleClientFactory
     public function gmail(GmailAccount $account): Gmail
     {
         return new Gmail($this->forGmailAccount($account));
+    }
+
+    /**
+     * @return array{client_id: string, client_secret: string, redirect_uri: string, scopes: array<int, string>}
+     */
+    private function credentials(): array
+    {
+        $configuration = Schema::hasTable('google_o_auth_configurations')
+            ? GoogleOAuthConfiguration::query()->where('is_active', true)->latest()->first()
+            : null;
+
+        return [
+            'client_id' => (string) ($configuration?->client_id ?: config('services.google.client_id')),
+            'client_secret' => (string) ($configuration?->client_secret ?: config('services.google.client_secret')),
+            'redirect_uri' => (string) ($configuration?->redirect_uri ?: config('services.google.redirect_uri')),
+            'scopes' => $configuration?->scopes ?: config('services.google.gmail_scopes', []),
+        ];
     }
 }

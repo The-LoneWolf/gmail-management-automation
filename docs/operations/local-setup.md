@@ -17,7 +17,11 @@ The Sail stack uses MySQL and Redis from `compose.yaml`.
 
 ## Gmail OAuth
 
-Create OAuth credentials in Google Cloud Console and configure:
+Create OAuth credentials in Google Cloud Console.
+
+You can configure the credentials in the Filament dashboard under **Settings > Google OAuth Setup**. The client secret is stored encrypted in the database.
+
+Alternatively, configure `.env`:
 
 ```dotenv
 GOOGLE_CLIENT_ID=
@@ -40,7 +44,7 @@ After editing `.env`, clear cached configuration:
 ./vendor/bin/sail artisan optimize:clear
 ```
 
-If Google shows `Missing required parameter: client_id`, the app is still missing `GOOGLE_CLIENT_ID` or is serving stale cached config.
+If Google shows `Missing required parameter: client_id`, the app is still missing a dashboard Google OAuth setup record or `GOOGLE_CLIENT_ID`, or it is serving stale cached config.
 
 ## Queues
 
