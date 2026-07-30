@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmailMessagePreviewController;
 use App\Http\Controllers\GmailOAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,4 +11,5 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function (): void {
     Route::get('/gmail/oauth/redirect', [GmailOAuthController::class, 'redirect'])->name('gmail.oauth.redirect');
     Route::get('/gmail/oauth/callback', [GmailOAuthController::class, 'callback'])->name('gmail.oauth.callback');
+    Route::get('/admin/email-messages/{emailMessage}/preview', EmailMessagePreviewController::class)->name('email-messages.preview');
 });
