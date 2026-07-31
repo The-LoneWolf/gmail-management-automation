@@ -103,6 +103,19 @@ After implementing meaningful work, update the docs with:
 - Run the relevant test suite before reporting completion.
 - Report any tests that could not be run and why.
 
+## Completion Gate
+
+Before ending any task that changes code, configuration, dependencies, workflows, or user-facing behavior, complete this checklist:
+
+- Review the related documentation in `docs/`, `README.md`, and `agents/`.
+- Update every affected document, setup step, command, architecture note, testing note, or tech-debt entry.
+- Add or update tests for changed behavior. If tests are not added, document the reason in the final report.
+- Run the smallest meaningful verification set for the change, plus formatting for touched PHP files.
+- Check `git status --short` and review the diff for unrelated or accidental changes.
+- Report what changed, what was verified, and what remains deferred or risky.
+
+Documentation-only changes still require a lightweight verification such as `git diff --check`. Dependency, CI, workflow, or setup changes require at least the relevant validation/audit/help command when available.
+
 ## Tech Debt Tracking
 
 Record debt in `docs/tech-debt/`. Use one Markdown file per topic or phase. Each entry should include:

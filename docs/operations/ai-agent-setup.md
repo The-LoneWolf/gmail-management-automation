@@ -71,6 +71,25 @@ Review the generated diff before committing. Boost-generated files can change su
 - Prefer PHPUnit tests, factories, and Laravel fakes over ad hoc scripts.
 - Run the smallest meaningful verification set before reporting completion.
 
+## Required Completion Checklist
+
+Before an AI agent ends any task that changes code, configuration, dependencies, GitHub workflows, setup instructions, or user-facing behavior, it must verify these items:
+
+1. Related docs were reviewed and updated where needed.
+2. Related tests were added or updated for changed behavior.
+3. Any intentionally skipped test or doc update is explained in the final response.
+4. Relevant validation commands were run.
+5. `git status --short` and the final diff were checked for accidental files.
+6. New limitations, shortcuts, or follow-up risks were recorded in `docs/tech-debt/` when they should survive the current conversation.
+
+Recommended verification by change type:
+
+- Documentation-only: `git diff --check`.
+- Composer dependency/config: `composer validate`, `composer audit`, and the relevant Artisan help or smoke command.
+- PHP behavior: related `php artisan test --compact ...` command and `./vendor/bin/pint --dirty --format agent`.
+- Frontend behavior: related tests or build command, commonly `npm run build`.
+- GitHub Actions: validate YAML shape by review, then confirm the workflow result on the PR when available.
+
 ## Verification
 
 For agent-tooling-only changes, run:
