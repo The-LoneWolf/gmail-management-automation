@@ -5,6 +5,7 @@ This directory stores durable project knowledge for operators, maintainers, and 
 ## Architecture
 
 - `docs/architecture/gmail-foundation.md`: current Gmail, sync, storage, UI, and safety boundaries.
+- `docs/architecture/ai-provider-abstraction.md`: researched design for dashboard-managed AI provider credentials, model routing, adapters, and safety boundaries.
 
 ## Implementation Notes
 
