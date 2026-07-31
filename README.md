@@ -14,6 +14,7 @@ The current Gmail sync is a queued import and history polling workflow. It is no
 - Redis
 - Database-backed queues
 - Google API PHP client
+- Node.js 22 or newer
 - Vite and Tailwind
 - PHPUnit 12
 
@@ -36,7 +37,7 @@ The current Gmail sync is a queued import and history polling workflow. It is no
 
 - Docker Desktop or another Docker-compatible runtime
 - Composer
-- Node.js and npm
+- Node.js 22 or newer and npm
 - Git
 
 Sail is the recommended runtime because this project targets PHP 8.4.
@@ -262,16 +263,49 @@ php artisan test --filter=EmailMessagePreviewTest
 
 The test environment uses SQLite in memory, array sessions, and synchronous queues. See `docs/testing/test-environment.md`.
 
+## Branch and Release Workflow
+
+This repository uses protected `develop` and `main` branches:
+
+- Normal work branches start from `develop` and open PRs back into `develop`.
+- `develop` requires PRs plus passing `test` and `audit` checks. It uses 0 approvals for solo-owner merging.
+- `main` is the release branch and stays stricter. Release PRs are opened from the `Prepare Release` workflow.
+- Branch names should be short, lowercase, hyphenated names such as `feature-gmail-history-sync`, `fix-email-preview-images`, or `chore-daily-dependabot`.
+- Avoid slash-separated branch names in this repository.
+
+Release flow:
+
+1. Merge feature/fix/security PRs into `develop`.
+2. Run GitHub Actions > `Prepare Release` with a semantic version such as `1.0.0`.
+3. Review and merge the generated release PR into `main`.
+4. `Publish Release` creates the tag and GitHub Release from `main`.
+
+See `docs/operations/release-process.md` and `agents/release-manager.md`.
+
 ## GitHub Actions
 
-The repository includes `.github/workflows/tests.yml`. On push to `main` and on pull requests it:
+The repository includes:
+
+- `.github/workflows/tests.yml`
+- `.github/workflows/security.yml`
+- `.github/workflows/prepare-release.yml`
+- `.github/workflows/publish-release.yml`
+
+The test workflow runs on pushes to `main` and `develop`, and on pull requests. It:
 
 - Checks out the repo
 - Installs PHP 8.4
 - Installs Composer dependencies
+- Installs Node.js 22
+- Installs npm dependencies with `npm ci`
+- Builds frontend assets
 - Copies `.env.example`
 - Generates an app key
 - Runs the PHPUnit suite with SQLite in memory
+
+The security workflow runs on pushes to `main` and `develop`, pull requests, a daily schedule, and manual dispatch. It runs Composer and npm audits.
+
+Dependabot checks Composer and npm daily and assigns opened PRs to `The-LoneWolf`.
 
 ## Troubleshooting
 
@@ -331,6 +365,7 @@ Retry failed jobs:
 
 Project docs are in `docs/`:
 
+- `docs/README.md`
 - `docs/architecture/`
 - `docs/implementation/`
 - `docs/operations/`
@@ -356,6 +391,8 @@ Agent and contribution conventions are in:
 ```text
 agents/claude.md
 ```
+
+Branch naming conventions are documented in `agents/claude.md`.
 
 ## Security Notes
 

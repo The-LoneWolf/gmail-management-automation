@@ -18,7 +18,7 @@ Tasks:
    - php artisan test
    - ./vendor/bin/pint --dirty
 5. Use the Prepare Release GitHub Action when possible.
-6. If preparing locally, create release/vVERSION from develop, update VERSION and CHANGELOG.md, and open a PR into main.
+6. If preparing locally, create release-vVERSION from develop, update VERSION and CHANGELOG.md, and open a PR into main.
 7. Do not push directly to main.
 8. Do not bypass branch protections.
 9. Summarize included changes, verification results, and release risks.
@@ -27,4 +27,5 @@ Constraints:
 - Do not run destructive git commands.
 - Do not mix unrelated feature work into release PRs.
 - Do not create a release tag before the release PR is merged into main.
+- Keep main stricter than develop; main release PRs require review.
 ```

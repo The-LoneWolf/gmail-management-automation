@@ -42,7 +42,7 @@ jobs:
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "branch=release/v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "branch=release-v$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Ensure release tag does not exist
         shell: bash

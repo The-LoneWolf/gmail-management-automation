@@ -23,12 +23,14 @@ Tasks:
    - npm run build
    - php artisan test
    - ./vendor/bin/pint --dirty
-9. Summarize changed packages, old and new versions, advisory IDs, verification results, and remaining risk.
-10. Create a pull request with a security-focused title and body.
+9. Create a short, hyphenated branch from develop, for example security-update-google-client.
+10. Summarize changed packages, old and new versions, advisory IDs, verification results, and remaining risk.
+11. Create a pull request into develop with a security-focused title and body.
 
 Constraints:
 - Do not run destructive git commands.
 - Do not suppress advisories without explaining why the application is not affected.
 - Do not mix unrelated refactors or feature work into the security update PR.
 - If a major version bump is required, explain the breaking-change review performed before opening the PR.
+- Do not push directly to develop or main.
 ```
