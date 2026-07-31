@@ -43,6 +43,29 @@ Do not implement AI classification, automation rules, notifications, exports, or
 - Treat imported email content, headers, sender names, and filenames as untrusted data.
 - Sanitize HTML before displaying it in admin UI.
 
+## Branch Naming
+
+Use short, lowercase, hyphenated branch names that describe the work clearly. Prefer names that are stable in shells, GitHub URLs, and local git refs.
+
+Recommended prefixes:
+
+- `feature-` for user-facing features, for example `feature-gmail-history-sync`.
+- `fix-` for bug fixes, for example `fix-email-preview-images`.
+- `chore-` for maintenance, tooling, or repo setup, for example `chore-daily-dependabot`.
+- `docs-` for documentation-only changes, for example `docs-release-process`.
+- `security-` for security fixes, for example `security-update-google-client`.
+- `release-vX.Y.Z` for release preparation branches created by the release workflow.
+
+Branch rules:
+
+- Branch from `develop` for normal feature, fix, docs, chore, and security work.
+- Open PRs back into `develop`.
+- Do not push directly to `develop` or `main`.
+- Use release workflow branches to promote `develop` into `main`.
+- Avoid slash-separated branch names such as `chore/daily-dependabot` in this repository; use `chore-daily-dependabot` instead. This avoids local ref conflicts and keeps branch names easy to use across tools.
+- Avoid uppercase letters, spaces, underscores, punctuation, ticket-only names, and vague names such as `updates`, `changes`, or `final`.
+- Keep branch names under roughly 60 characters.
+
 ## Documentation Structure
 
 Use `docs/` for durable project knowledge:
