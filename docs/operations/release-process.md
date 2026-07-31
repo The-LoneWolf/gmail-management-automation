@@ -38,12 +38,13 @@ Repository > Settings > Branches > Add branch protection rule
 For `develop`:
 
 - Require a pull request before merging.
-- Require at least 1 approval.
-- Dismiss stale pull request approvals when new commits are pushed.
+- Require 0 approvals for solo-owner repositories.
 - Require status checks to pass before merging.
 - Require branches to be up to date before merging.
 - Block force pushes.
 - Block deletions.
+
+This keeps `develop` protected from direct pushes while allowing the repository owner to merge their own PRs after checks pass. If more maintainers are added later, raise this to at least 1 approval.
 
 For `main`:
 
