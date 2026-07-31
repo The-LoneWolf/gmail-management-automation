@@ -38,6 +38,26 @@ Enable:
 - Dependabot alerts
 - Dependabot security updates
 
+## Owner Notifications
+
+Dependabot security alerts are GitHub security notifications, not normal workflow output. After enabling Dependabot alerts, GitHub notifies repository administrators and users watching the repository for security alerts according to their notification settings.
+
+For the repository owner account, verify:
+
+```text
+GitHub > Settings > Notifications
+```
+
+Enable security alert notification delivery for email, web, or mobile as desired.
+
+Also verify the repository watch state:
+
+```text
+Repository > Watch > Custom > Security alerts
+```
+
+This repository also assigns Dependabot Composer and npm pull requests to `The-LoneWolf` in `.github/dependabot.yml`, which creates normal GitHub PR notifications when Dependabot opens update or security PRs.
+
 ## Composer Security Updates
 
 Audit current PHP dependencies:
