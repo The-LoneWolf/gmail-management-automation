@@ -16,6 +16,7 @@ This directory stores durable project knowledge for operators, maintainers, and 
 ## Operations
 
 - `docs/operations/local-setup.md`: Sail setup, OAuth setup, queues, scheduler, and local verification commands.
+- `docs/operations/ai-agent-setup.md`: Laravel Boost, MCP, generated agent assets, and AI-agent workflow.
 - `docs/operations/security-updates.md`: Dependabot, security alerts, audits, owner notifications, and security-update PR process.
 - `docs/operations/release-process.md`: protected branch model, release PR flow, changelog behavior, and GitHub Release publishing.
 

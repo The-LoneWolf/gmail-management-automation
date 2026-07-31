@@ -96,3 +96,7 @@ npm run build
 php artisan test
 ./vendor/bin/pint --dirty
 ```
+
+## AI Agent Tooling
+
+Laravel Boost is installed as a development-only dependency for AI coding agents. See `docs/operations/ai-agent-setup.md` for the generated guidelines, skills, MCP setup, and update commands.
