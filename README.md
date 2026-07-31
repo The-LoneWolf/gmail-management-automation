@@ -394,6 +394,14 @@ agents/claude.md
 
 Branch naming conventions are documented in `agents/claude.md`.
 
+AI-agent setup and Laravel Boost usage are documented in:
+
+```text
+docs/operations/ai-agent-setup.md
+```
+
+This repository includes `laravel/boost` as a development-only dependency. It provides generated agent guidelines, skills, and the `laravel-boost` MCP server through `.mcp.json`; it is not the runtime AI provider layer for future classification or automation features.
+
 ## Security Notes
 
 - Gmail access tokens, refresh tokens, and Google OAuth client secrets are encrypted by Laravel casts.

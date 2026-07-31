@@ -384,7 +384,7 @@ Consider Prism PHP only when one of these becomes true:
 - Laravel AI SDK's provider configuration cannot be driven cleanly from encrypted dashboard records.
 - Prism reduces code while preserving the app-owned provider model.
 
-Do not install `laravel/boost` as part of the runtime AI provider implementation. Install `laravel/boost --dev` separately when we want Laravel-aware MCP tools, local project inspection, and generated AI coding guidelines. Boost should improve development workflow, not become part of the email automation runtime.
+`laravel/boost` is now installed as a development-only dependency for Laravel-aware MCP tools, local project inspection, and generated AI coding guidelines. Boost should improve development workflow, not become part of the email automation runtime.
 
 ## Implementation Phases
 
