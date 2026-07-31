@@ -49,6 +49,14 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - You must only create documentation files if explicitly requested by the user.
 
+## Project Completion Gate
+
+- Before ending a task that changes code, configuration, dependencies, workflows, or user-facing behavior, review and update related docs in `docs/`, `README.md`, and `agents/`.
+- Add or update related tests for changed behavior. If tests or docs are intentionally not updated, explain why in the final response.
+- Run the smallest meaningful verification set for the change and report it.
+- Check `git status --short` and the final diff for unrelated or accidental changes before committing or reporting completion.
+- Record durable follow-up risks in `docs/tech-debt/`.
+
 ## Replies
 
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
