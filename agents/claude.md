@@ -29,6 +29,15 @@ Do not implement AI classification, automation rules, notifications, exports, or
 - Store OAuth tokens using Laravel encrypted casts.
 - Use backed PHP enums for constrained domain values when the values appear in migrations and application logic.
 
+## Laravel Boost And AI Agent Tooling
+
+- Laravel Boost is installed as a development-only dependency for Laravel-aware MCP tools, generated guidelines, and agent skills.
+- Treat Boost as coding workflow support only. Do not use it as the runtime AI provider layer for email classification, extraction, drafting, or automation.
+- Runtime AI integrations should follow `docs/architecture/ai-provider-abstraction.md`, with `laravel/ai` preferred behind the project-owned `AiClient` boundary when that phase starts.
+- When Boost MCP is available, use its Laravel documentation search before changing Laravel, Filament, Livewire, Tailwind, Sail, queue, migration, or test code.
+- Keep generated Boost files updated with `php artisan boost:install --guidelines --skills --mcp --no-interaction` after dependency upgrades.
+- Read `docs/operations/ai-agent-setup.md` before changing agent tooling or generated Boost assets.
+
 ## Code Conventions
 
 - Follow Laravel's default directory structure and naming conventions unless the project has an established local convention.
@@ -73,6 +82,7 @@ Use `docs/` for durable project knowledge:
 - `docs/architecture/` for system design, data model notes, and service boundaries.
 - `docs/implementation/` for phase-by-phase implementation notes.
 - `docs/operations/` for local setup, OAuth setup, queues, scheduler, and deployment notes.
+- `docs/operations/ai-agent-setup.md` for Laravel Boost, MCP, and generated AI-agent assets.
 - `docs/testing/` for test strategy and verification notes.
 - `docs/tech-debt/` for known limitations, deferred decisions, and cleanup tasks.
 
@@ -92,6 +102,19 @@ After implementing meaningful work, update the docs with:
 - Prefer fakes and test doubles around Google API objects.
 - Run the relevant test suite before reporting completion.
 - Report any tests that could not be run and why.
+
+## Completion Gate
+
+Before ending any task that changes code, configuration, dependencies, workflows, or user-facing behavior, complete this checklist:
+
+- Review the related documentation in `docs/`, `README.md`, and `agents/`.
+- Update every affected document, setup step, command, architecture note, testing note, or tech-debt entry.
+- Add or update tests for changed behavior. If tests are not added, document the reason in the final report.
+- Run the smallest meaningful verification set for the change, plus formatting for touched PHP files.
+- Check `git status --short` and review the diff for unrelated or accidental changes.
+- Report what changed, what was verified, and what remains deferred or risky.
+
+Documentation-only changes still require a lightweight verification such as `git diff --check`. Dependency, CI, workflow, or setup changes require at least the relevant validation/audit/help command when available.
 
 ## Tech Debt Tracking
 

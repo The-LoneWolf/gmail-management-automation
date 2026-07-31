@@ -2,7 +2,7 @@
 
 This repository uses two protected long-lived branches:
 
-- `develop`: integration branch for approved feature, fix, and maintenance PRs.
+- `develop`: integration branch for feature, fix, documentation, security, and maintenance PRs.
 - `main`: release branch. Production builds and GitHub Releases are created from this branch.
 
 ## Normal Development Flow
@@ -10,7 +10,7 @@ This repository uses two protected long-lived branches:
 1. Create a feature branch from `develop`.
 2. Open a PR back into `develop`.
 3. Wait for required CI checks.
-4. Review and approve the PR.
+4. Review the PR.
 5. Merge into `develop`.
 
 Do not push directly to `develop` or `main`.
@@ -20,7 +20,7 @@ Do not push directly to `develop` or `main`.
 1. Go to GitHub Actions.
 2. Run the `Prepare Release` workflow.
 3. Enter the version, for example `1.2.0`.
-4. The workflow creates `release/v1.2.0`, updates `VERSION`, updates `CHANGELOG.md`, and opens a PR into `main`.
+4. The workflow creates `release-v1.2.0`, updates `VERSION`, updates `CHANGELOG.md`, and opens a PR into `main`.
 5. Review the release PR.
 6. Merge the release PR into `main`.
 7. The `Publish Release` workflow creates tag `v1.2.0` and publishes the GitHub Release.
@@ -85,3 +85,14 @@ For urgent production fixes:
 3. After release, merge `main` back into `develop`.
 
 Document why the normal `develop` release flow was bypassed.
+
+## Documentation Updates
+
+When release, branch protection, CI, Dependabot, or security behavior changes, update:
+
+- `README.md`
+- `agents/claude.md`
+- `agents/release-manager.md`
+- `docs/operations/release-process.md`
+- `docs/operations/security-updates.md`
+- `docs/operations/local-setup.md`

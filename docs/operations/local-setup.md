@@ -2,18 +2,34 @@
 
 ## Sail
 
-The current dependency set requires PHP >= 8.4.1. Sail is the recommended local runtime.
+The current dependency set requires PHP >= 8.4.1 and Node.js >= 22. Sail is the recommended local PHP runtime.
 
 Install dependencies and start the app:
 
 ```bash
 composer install
-npm install
+cp .env.example .env
 ./vendor/bin/sail up -d
-./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run build
 ```
 
 The Sail stack uses MySQL and Redis from `compose.yaml`.
+
+The seeded local admin account is:
+
+```text
+Email: admin@example.com
+Password: password
+```
+
+For frontend work, run:
+
+```bash
+./vendor/bin/sail npm run dev
+```
 
 ## Gmail OAuth
 
@@ -54,6 +70,14 @@ Gmail imports are queued. During development run:
 ./vendor/bin/sail artisan queue:work
 ```
 
+For automatic Gmail history polling, run the scheduler:
+
+```bash
+./vendor/bin/sail artisan schedule:work
+```
+
+The scheduler queues `gmail:sync-accounts` every five minutes.
+
 ## Test Environment
 
 Run local tests without Docker:
@@ -62,3 +86,17 @@ Run local tests without Docker:
 php artisan test
 php artisan migrate:fresh --seed --env=testing
 ```
+
+The normal CI-equivalent local verification set is:
+
+```bash
+composer audit
+npm audit --audit-level=moderate
+npm run build
+php artisan test
+./vendor/bin/pint --dirty
+```
+
+## AI Agent Tooling
+
+Laravel Boost is installed as a development-only dependency for AI coding agents. See `docs/operations/ai-agent-setup.md` for the generated guidelines, skills, MCP setup, and update commands.
