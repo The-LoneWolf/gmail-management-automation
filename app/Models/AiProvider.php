@@ -30,6 +30,14 @@ class AiProvider extends Model
         'secret_headers',
     ];
 
+    protected $attributes = [
+        'vendor' => 'customendpoint',
+        'api_type' => 'chat-completions',
+        'timeout_seconds' => 60,
+        'retry_attempts' => 2,
+        'is_active' => true,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -45,6 +53,11 @@ class AiProvider extends Model
     public function models(): HasMany
     {
         return $this->hasMany(AiModel::class);
+    }
+
+    public function featureSettings(): HasMany
+    {
+        return $this->hasMany(AiFeatureSetting::class);
     }
 
     public function toProviderConfiguration(): array

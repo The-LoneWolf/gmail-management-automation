@@ -132,7 +132,7 @@ Each native adapter should still implement the same internal contract.
 
 ## Proposed Data Model
 
-Implementation note: the initial provider/model foundation now exists in the app. It supports dashboard-managed `ai_providers` and `ai_models`, encrypted provider API keys and secret headers, model endpoint overrides, tool-calling capability, vision capability, streaming capability, and token limits. OpenCode Mimo can be installed from the Filament `AI Providers` page with the `Install OpenCode Mimo preset` action.
+Implementation note: the initial provider/model foundation now exists in the app. It supports dashboard-managed `ai_providers`, `ai_models`, and `ai_feature_settings`, encrypted provider API keys and secret headers, model endpoint overrides, feature-level provider/model selection, tool-calling capability, vision capability, streaming capability, and token limits. OpenCode Mimo can be installed from the Filament `AI Providers` page with the `Install OpenCode Mimo preset` action.
 
 ### `ai_providers`
 
@@ -227,6 +227,21 @@ Recommended fields:
 - `requires_tools`
 - `is_enabled`
 - `policy` JSON
+
+Initial implemented fields:
+
+- `feature`
+- `name`
+- `ai_provider_id`
+- `ai_model_id`
+- `temperature`
+- `max_output_tokens`
+- `system_prompt`
+- `request_overrides`
+- `requires_json`
+- `requires_tools`
+- `requires_vision`
+- `is_enabled`
 
 ### `ai_requests`
 
@@ -419,10 +434,10 @@ Consider Prism PHP only when one of these becomes true:
 
 ### Phase A: Provider Foundation
 
-- Add `ai_providers`, `ai_models`, `ai_feature_settings`, and `ai_requests`. `ai_providers` and `ai_models` are implemented; feature settings and request audit logs remain future work.
+- Add `ai_providers`, `ai_models`, `ai_feature_settings`, and `ai_requests`. `ai_providers`, `ai_models`, and `ai_feature_settings` are implemented; request audit logs remain future work.
 - Add encrypted casts for keys and secret headers. Done for provider API keys and secret headers.
 - Add `AiProviderType` and `AiCapability` enums.
-- Add Filament resources for providers, models, and feature settings. Provider and model resources are implemented; feature settings remain future work.
+- Add Filament resources for providers, models, and feature settings. Done.
 - Add `laravel/ai` if it works with the current Laravel version in this repository.
 - Add `LaravelAiSdkClient` behind the project-owned `AiClient` contract.
 - Add direct `OpenAiCompatibleClient` only if a configured gateway cannot be represented through Laravel AI SDK.

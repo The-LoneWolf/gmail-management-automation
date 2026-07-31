@@ -2,13 +2,14 @@
 
 Date: 2026-07-31
 
-The dashboard can now store AI providers and model capabilities, including the OpenCode Mimo preset. The runtime client contract is still missing.
+The dashboard can now store AI providers, model capabilities, and feature-level provider/model selection. A generic chat-completions client exists for OpenAI-compatible endpoints, including the OpenCode Mimo preset. Existing product workflows still need to be wired to that client deliberately.
 
 ## Follow-Up Work
 
-- Add an internal AI client contract that accepts a configured `AiProvider` and `AiModel`.
-- Decide whether Laravel AI SDK is the first runtime adapter, with raw HTTP as the fallback for custom endpoints.
+- Add a richer internal AI client contract if the simple `ChatCompletionsClient` becomes too narrow.
+- Decide whether Laravel AI SDK should replace or wrap the raw HTTP chat-completions client.
 - Add provider validation without sending sensitive email content.
-- Add per-feature AI settings for classification, extraction, automation conditions, reply drafts, and summaries.
+- Wire email classification to `AiFeature::EmailClassification` with prompt versions and strict output validation.
+- Wire extraction, automation conditions, reply drafts, and summaries to their feature settings.
 - Add request audit logs with status, latency, tokens, model, provider, and sanitized error category.
 - Keep Gmail-destructive actions behind explicit policy and approval gates.

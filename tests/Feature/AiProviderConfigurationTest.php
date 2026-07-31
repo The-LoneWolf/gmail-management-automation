@@ -2,10 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AiFeature;
+use App\Models\AiFeatureSetting;
+use App\Models\AiModel;
 use App\Models\AiProvider;
+use App\Services\Ai\AiFeatureResolver;
 use App\Services\Ai\AiProviderPresetService;
+use App\Services\Ai\ChatCompletionsClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use Tests\TestCase;
 
 class AiProviderConfigurationTest extends TestCase
@@ -69,5 +77,97 @@ class AiProviderConfigurationTest extends TestCase
                 ],
             ],
         ], $provider->toProviderConfiguration());
+    }
+
+    public function test_feature_resolver_uses_database_selected_provider_and_model(): void
+    {
+        $provider = AiProvider::factory()->create([
+            'name' => 'Local 9router',
+            'endpoint_url' => 'https://ai.example.test/v1/chat/completions',
+        ]);
+        $model = AiModel::factory()->for($provider, 'provider')->create([
+            'provider_model_id' => 'my-dynamic-model',
+            'supports_tool_calling' => true,
+        ]);
+        AiFeatureSetting::factory()->for($provider, 'provider')->for($model, 'model')->create([
+            'feature' => AiFeature::EmailClassification,
+            'requires_tools' => true,
+        ]);
+
+        $setting = app(AiFeatureResolver::class)->resolve(AiFeature::EmailClassification);
+
+        $this->assertTrue($setting->provider->is($provider));
+        $this->assertTrue($setting->model->is($model));
+        $this->assertSame('my-dynamic-model', $setting->model->provider_model_id);
+    }
+
+    public function test_chat_completions_client_calls_selected_model_endpoint(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'ai.example.test/*' => Http::response([
+                'id' => 'chatcmpl-test',
+                'choices' => [
+                    ['message' => ['role' => 'assistant', 'content' => 'classified']],
+                ],
+            ]),
+        ]);
+
+        $provider = AiProvider::factory()->create([
+            'endpoint_url' => 'https://ai.example.test/v1/chat/completions',
+            'api_key' => 'dynamic-provider-key',
+            'secret_headers' => ['X-Router' => 'tenant-a'],
+            'default_body' => ['stream' => false],
+            'timeout_seconds' => 12,
+            'retry_attempts' => 0,
+        ]);
+        $model = AiModel::factory()->for($provider, 'provider')->create([
+            'provider_model_id' => 'custom-dynamic-model',
+            'endpoint_url' => null,
+            'max_output_tokens' => 2048,
+        ]);
+        AiFeatureSetting::factory()->for($provider, 'provider')->for($model, 'model')->create([
+            'feature' => AiFeature::EmailClassification,
+            'temperature' => 0.40,
+            'system_prompt' => 'Classify email.',
+            'request_overrides' => ['response_format' => ['type' => 'json_object']],
+        ]);
+
+        $response = app(ChatCompletionsClient::class)->send(AiFeature::EmailClassification, [
+            ['role' => 'user', 'content' => 'Email body'],
+        ]);
+
+        $this->assertSame('chatcmpl-test', $response['id']);
+
+        Http::assertSent(function (Request $request): bool {
+            $data = $request->data();
+
+            return $request->url() === 'https://ai.example.test/v1/chat/completions'
+                && $request->hasHeader('Authorization', 'Bearer dynamic-provider-key')
+                && $request->hasHeader('X-Router', 'tenant-a')
+                && $data['model'] === 'custom-dynamic-model'
+                && $data['messages'][0] === ['role' => 'system', 'content' => 'Classify email.']
+                && $data['messages'][1] === ['role' => 'user', 'content' => 'Email body']
+                && $data['temperature'] === 0.4
+                && $data['max_tokens'] === 2048
+                && $data['stream'] === false
+                && $data['response_format'] === ['type' => 'json_object'];
+        });
+    }
+
+    public function test_feature_resolver_rejects_model_from_a_different_provider(): void
+    {
+        $selectedProvider = AiProvider::factory()->create();
+        $otherProvider = AiProvider::factory()->create();
+        $model = AiModel::factory()->for($otherProvider, 'provider')->create();
+
+        AiFeatureSetting::factory()->for($selectedProvider, 'provider')->for($model, 'model')->create([
+            'feature' => AiFeature::EmailExtraction,
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('does not belong to the selected provider');
+
+        app(AiFeatureResolver::class)->resolve(AiFeature::EmailExtraction);
     }
 }

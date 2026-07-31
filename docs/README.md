@@ -12,7 +12,7 @@ This directory stores durable project knowledge for operators, maintainers, and 
 - `docs/implementation/phase-1-2.md`: Gmail OAuth, account storage, message import, and inbox foundation.
 - `docs/implementation/phase-3-4.md`: Gmail history sync, classification, states, topics, seeders, and test environment.
 - `docs/implementation/phase-5-7.md`: extraction, exports, automation, notifications, reply drafts, and approval gates.
-- `docs/implementation/ai-provider-foundation.md`: dashboard-managed AI providers, AI models, and the OpenCode Mimo preset.
+- `docs/implementation/ai-provider-foundation.md`: dashboard-managed AI providers, AI models, feature selections, generic chat-completions calls, and the OpenCode Mimo preset.
 
 ## Operations
 
@@ -31,7 +31,7 @@ This directory stores durable project knowledge for operators, maintainers, and 
 - `docs/tech-debt/phase-1-2.md`: foundation risks and follow-up work.
 - `docs/tech-debt/phase-3-4.md`: history sync, classifier, reprocessing, and policy follow-up work.
 - `docs/tech-debt/phase-5-7.md`: external providers, Filament UX, notifications, and reply-sending follow-up work.
-- `docs/tech-debt/ai-provider-runtime.md`: AI runtime client, feature settings, validation, and audit logging follow-up work.
+- `docs/tech-debt/ai-provider-runtime.md`: product workflow integration, provider validation, audit logging, and approval follow-up work.
 
 ## Agent Commands
 

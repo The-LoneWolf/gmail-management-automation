@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'ai_provider_id',
@@ -26,6 +27,13 @@ class AiModel extends Model
     /** @use HasFactory<AiModelFactory> */
     use HasFactory;
 
+    protected $attributes = [
+        'supports_tool_calling' => false,
+        'supports_vision' => false,
+        'supports_streaming' => true,
+        'is_active' => true,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -42,6 +50,11 @@ class AiModel extends Model
     public function provider(): BelongsTo
     {
         return $this->belongsTo(AiProvider::class, 'ai_provider_id');
+    }
+
+    public function featureSettings(): HasMany
+    {
+        return $this->hasMany(AiFeatureSetting::class);
     }
 
     public function effectiveEndpointUrl(): string
