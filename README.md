@@ -344,6 +344,13 @@ docs/operations/security-updates.md
 agents/security-update.md
 ```
 
+Release workflow:
+
+```text
+docs/operations/release-process.md
+agents/release-manager.md
+```
+
 Agent and contribution conventions are in:
 
 ```text

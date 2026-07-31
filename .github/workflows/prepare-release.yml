@@ -1,0 +1,115 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version, for example 1.2.0
+        required: true
+        type: string
+      enable_auto_merge:
+        description: Enable auto-merge after required checks and approvals pass
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Validate version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Version must look like 1.2.3 or v1.2.3." >&2
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "branch=release/v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure release tag does not exist
+        shell: bash
+        run: |
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.version.outputs.tag }} already exists." >&2
+            exit 1
+          fi
+
+      - name: Prepare changelog
+        shell: bash
+        run: |
+          PREVIOUS_TAG="$(git describe --tags --abbrev=0 2>/dev/null || true)"
+          php scripts/prepare-release-changelog.php \
+            "${{ steps.version.outputs.version }}" \
+            "$PREVIOUS_TAG" \
+            "HEAD" \
+            "$(date -u +%F)"
+
+      - name: Create release branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "${{ steps.version.outputs.branch }}"
+          git add VERSION CHANGELOG.md
+          git commit -m "Prepare release ${{ steps.version.outputs.tag }}"
+          git push --force-with-lease origin "${{ steps.version.outputs.branch }}"
+
+      - name: Open release pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          BODY_FILE="$(mktemp)"
+          {
+            echo "## Release ${{ steps.version.outputs.tag }}"
+            echo
+            echo "This PR promotes \`develop\` to \`main\` for release."
+            echo
+            echo "### Checklist"
+            echo
+            echo "- [ ] CI is green"
+            echo "- [ ] Changelog is reviewed"
+            echo "- [ ] Version is correct"
+            echo "- [ ] Release risk is accepted"
+          } > "$BODY_FILE"
+
+          if gh pr view "${{ steps.version.outputs.branch }}" --json number >/dev/null 2>&1; then
+            gh pr edit "${{ steps.version.outputs.branch }}" \
+              --title "Release ${{ steps.version.outputs.tag }}" \
+              --body-file "$BODY_FILE"
+          else
+            gh pr create \
+              --base main \
+              --head "${{ steps.version.outputs.branch }}" \
+              --title "Release ${{ steps.version.outputs.tag }}" \
+              --body-file "$BODY_FILE"
+          fi
+
+      - name: Enable auto-merge
+        if: inputs.enable_auto_merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh pr merge "${{ steps.version.outputs.branch }}" \
+            --auto \
+            --merge \
+            --delete-branch
