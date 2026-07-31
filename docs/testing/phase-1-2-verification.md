@@ -15,3 +15,12 @@ php artisan test
 ```
 
 Tests use SQLite in memory through `.env.testing` and `phpunit.xml`, so Docker is not required for the automated suite.
+
+For changes that affect frontend assets, CI, dependencies, or shared application behavior, also run:
+
+```bash
+composer audit
+npm audit --audit-level=moderate
+npm run build
+./vendor/bin/pint --dirty
+```

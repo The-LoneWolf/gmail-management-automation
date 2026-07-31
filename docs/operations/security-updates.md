@@ -4,11 +4,11 @@ Use this workflow when GitHub, Dependabot, Composer, npm, or an AI agent reports
 
 ## First Response
 
-1. Create a branch from latest `main`.
+1. Create a branch from latest `develop`.
 2. Identify the affected ecosystem, package, installed version, vulnerable range, and patched version.
 3. Prefer the narrowest safe update that reaches the patched version.
 4. Avoid broad framework or toolchain upgrades unless the advisory requires them.
-5. Run the relevant audit and test commands before opening a PR.
+5. Run the relevant audit and test commands before opening a PR into `develop`.
 
 ## Check GitHub Dependabot Alerts
 
@@ -57,6 +57,18 @@ Repository > Watch > Custom > Security alerts
 ```
 
 This repository also assigns Dependabot Composer and npm pull requests to `The-LoneWolf` in `.github/dependabot.yml`, which creates normal GitHub PR notifications when Dependabot opens update or security PRs.
+
+## Current Automation
+
+Dependabot checks Composer and npm daily:
+
+- Composer: `09:00 Asia/Tehran`
+- npm: `09:30 Asia/Tehran`
+
+The repository security audit workflow also runs daily and on PRs. It executes:
+
+- `composer audit`
+- `npm audit --audit-level=moderate`
 
 ## Composer Security Updates
 
@@ -152,7 +164,7 @@ Please:
 5. Update composer.lock, package-lock.json, or manifests only as needed.
 6. Run formatting, build, audits, and tests.
 7. Document what changed, what was verified, and any residual risk.
-8. Create a PR with a concise security-focused title and body.
+8. Create a PR into `develop` with a concise security-focused title and body.
 
 Do not use destructive git commands.
 Do not update unrelated dependencies unless required by the dependency solver.

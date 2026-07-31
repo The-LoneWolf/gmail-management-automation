@@ -2,7 +2,9 @@
 
 ## Scope
 
-Phase 1 and Phase 2 establish Gmail connectivity and local inbox storage only. AI classification, automation, notifications, exports, and reply sending are intentionally deferred.
+The foundation started with Gmail connectivity and local inbox storage. The current system now includes Gmail history polling, local classification, extraction/export scaffolding, automation evaluation, notification channel modeling, and approval-gated reply sending.
+
+Remote Gmail mutation, external notification delivery, production AI providers, full attachment download/storage, and true Gmail Pub/Sub push notifications remain intentionally gated or deferred.
 
 ## Boundaries
 
@@ -11,6 +13,8 @@ Phase 1 and Phase 2 establish Gmail connectivity and local inbox storage only. A
 - `App\Services\Gmail\GmailImportService` owns idempotent persistence for threads, messages, and attachment metadata.
 - `InitialGmailSync` queues message imports from paginated Gmail message IDs.
 - `ImportGmailMessage` fetches one full Gmail message and persists it.
+- `gmail:sync-accounts` and scheduled jobs poll Gmail history every five minutes when the scheduler is running.
+- Classification, extraction, export, automation, notification, and reply-draft domains live behind local deterministic services and explicit safety gates.
 
 ## Storage Rules
 
@@ -28,5 +32,8 @@ Filament exposes:
 - Gmail account status and a connect action.
 - Inbox threads.
 - Inbox messages.
+- Classification topics, states, and message classification audit records.
+- Extraction/export templates and generated exports.
+- Automation rules/executions, notification channels, and reply drafts.
 
-The inbox is read-oriented in this phase because records should originate from Gmail imports.
+Email sending and restricted automation actions require explicit approval paths.

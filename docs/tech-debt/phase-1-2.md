@@ -1,13 +1,5 @@
 # Phase 1 and Phase 2 Tech Debt
 
-## Gmail History Sync
-
-Context: Initial import stores the latest imported message `history_id`, but does not use Gmail history API yet.
-
-Risk: Ongoing sync cannot efficiently detect changed labels or new messages.
-
-Resolution: Implement Phase 3 with `users.history.list`, scheduler command, and sync status/error visibility.
-
 ## Attachment Downloads
 
 Context: Phase 2 stores attachment metadata only.
@@ -18,11 +10,11 @@ Resolution: Add `DownloadGmailAttachment` and storage rules before extraction te
 
 ## HTML Sanitization
 
-Context: The parser strips scripts and inline event handlers as a first-pass safeguard.
+Context: Email previews now use a safer preview endpoint that allows remote images/fonts and blocks scripts. Parser-level safeguards still exist for imported content.
 
-Risk: Rich HTML email rendering needs a stronger allowlist sanitizer and remote-image handling.
+Risk: Rich HTML email rendering remains a high-risk surface because email HTML is hostile input.
 
-Resolution: Replace with a dedicated sanitizer policy before rendering full HTML bodies broadly in Filament.
+Resolution: Keep preview rendering sandboxed, add stronger sanitizer policy tests as supported HTML coverage grows, and avoid allowing scripts.
 
 ## Authorization Policies
 
