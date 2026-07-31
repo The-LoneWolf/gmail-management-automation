@@ -1,58 +1,355 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gmail Management Automation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel and Filament application for connecting Gmail accounts, importing messages, previewing email content, classifying messages, extracting structured data, evaluating automation rules, drafting replies, and generating exports.
 
-## About Laravel
+The current Gmail sync is a queued import and history polling workflow. It is not a full real-time Gmail push notification mirror yet.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.4
+- Laravel 13
+- Filament 5
+- Laravel Sail
+- MySQL 8.4
+- Redis
+- Database-backed queues
+- Google API PHP client
+- Vite and Tailwind
+- PHPUnit 12
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Features
 
-## Learning Laravel
+- Google OAuth configuration from the Filament dashboard or `.env`
+- Gmail account connection via OAuth
+- Encrypted Gmail token and Google client secret storage
+- Initial Gmail import
+- Gmail history sync every five minutes when the scheduler is running
+- Manual "Sync latest" action in Email Messages
+- Email threads, messages, and attachments
+- Safe HTML email preview with remote images/fonts allowed and scripts blocked
+- Keyword-based local classification
+- Topics and workflow states
+- Extraction templates, export templates, automation rules, notification channels, reply drafts
+- Factories, seeders, test environment, and GitHub Actions test workflow
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requirements
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Docker Desktop or another Docker-compatible runtime
+- Composer
+- Node.js and npm
+- Git
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Sail is the recommended runtime because this project targets PHP 8.4.
 
-## Agentic Development
+## Fresh Setup
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Clone the repository and install PHP dependencies:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/The-LoneWolf/gmail-management-automation.git
+cd gmail-management-automation
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Create the local environment file:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+For Sail/MySQL development, set these values in `.env`:
 
-## Code of Conduct
+```dotenv
+APP_NAME="Gmail Management Automation"
+APP_URL=http://localhost
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
 
-## Security Vulnerabilities
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Start Sail and prepare the app:
+
+```bash
+./vendor/bin/sail up -d
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run build
+```
+
+Open the app at:
+
+```text
+http://localhost/admin
+```
+
+Seeded local admin login:
+
+```text
+Email: admin@example.com
+Password: password
+```
+
+## Daily Development
+
+Start the containers:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+Run the frontend dev server:
+
+```bash
+./vendor/bin/sail npm run dev
+```
+
+Run the queue worker:
+
+```bash
+./vendor/bin/sail artisan queue:work
+```
+
+Run the scheduler locally if you want automatic Gmail history polling:
+
+```bash
+./vendor/bin/sail artisan schedule:work
+```
+
+The scheduler runs:
+
+```text
+gmail:sync-accounts every five minutes
+```
+
+You can also queue Gmail syncs manually:
+
+```bash
+./vendor/bin/sail artisan gmail:sync-accounts
+./vendor/bin/sail artisan gmail:sync-accounts --account=1
+```
+
+## Google OAuth Setup
+
+You can configure Google OAuth in the dashboard:
+
+```text
+Admin > Settings > Google OAuth Setup
+```
+
+Click **Create**, then use the **Setup steps** button on that page for the detailed Google Cloud walkthrough.
+
+High-level Google Cloud steps:
+
+1. Open Google Cloud Console: https://console.cloud.google.com/
+2. Create or select a project.
+3. Enable Gmail API: https://console.cloud.google.com/apis/library/gmail.googleapis.com
+4. Configure Google Auth Platform: https://console.cloud.google.com/auth/overview
+5. Add your Gmail address as a test user while the app is in Testing mode.
+6. Add OAuth scopes at https://console.cloud.google.com/auth/scopes
+7. Create a Web application OAuth client at https://console.cloud.google.com/auth/clients
+8. Add this authorized redirect URI:
+
+```text
+http://localhost/gmail/oauth/callback
+```
+
+Required scopes:
+
+```text
+openid
+email
+profile
+https://www.googleapis.com/auth/gmail.modify
+```
+
+Copy the Google Client ID and Client secret into the dashboard record, save it, then go to:
+
+```text
+Admin > Gmail Accounts > Connect Gmail
+```
+
+### Environment-Based OAuth
+
+The dashboard OAuth setup is preferred for local use because it avoids editing `.env` repeatedly. You can also configure OAuth with environment variables:
+
+```dotenv
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI="${APP_URL}/gmail/oauth/callback"
+GOOGLE_GMAIL_SCOPES="openid,email,profile,https://www.googleapis.com/auth/gmail.modify"
+```
+
+After changing `.env`, clear cached config:
+
+```bash
+./vendor/bin/sail artisan optimize:clear
+```
+
+## Gmail Import Behavior
+
+When a Gmail account is connected, `InitialGmailSync` queues an initial import. The default initial import cap is currently 100 messages.
+
+Additional messages can be pulled by:
+
+- Clicking **Sync latest** in Email Messages
+- Running `gmail:sync-accounts`
+- Running the scheduler, which polls Gmail history every five minutes
+
+The current history sync listens for:
+
+- `messageAdded`
+- `labelAdded`
+- `labelRemoved`
+
+This updates new messages and label-driven state such as read/unread, starred, inbox, and archived after the next sync. True Gmail push notifications, Pub/Sub webhooks, full deletion mirroring, and long-running backfills are future work.
+
+## Classification
+
+Classification is currently local and keyword-based. The job name is `ClassifyEmailWithAi`, but the service binding uses `KeywordEmailIntelligenceService`.
+
+Configure classification in:
+
+```text
+Admin > Classification > Topics
+Admin > Classification > States
+```
+
+Topics control category matching through keywords. States control workflow status. The current classifier treats these state slugs specially:
+
+```text
+new
+needs-review
+action-required
+```
+
+Changing topics affects new classifications. Existing messages are not automatically reclassified yet.
+
+## Testing
+
+Run the full test suite:
+
+```bash
+php artisan test
+```
+
+Or through Sail:
+
+```bash
+./vendor/bin/sail artisan test
+```
+
+Run formatting:
+
+```bash
+./vendor/bin/pint
+```
+
+Useful focused checks:
+
+```bash
+php artisan test --filter=GoogleOAuth
+php artisan test --filter=EmailMessagePreviewTest
+```
+
+The test environment uses SQLite in memory, array sessions, and synchronous queues. See `docs/testing/test-environment.md`.
+
+## GitHub Actions
+
+The repository includes `.github/workflows/tests.yml`. On push to `main` and on pull requests it:
+
+- Checks out the repo
+- Installs PHP 8.4
+- Installs Composer dependencies
+- Copies `.env.example`
+- Generates an app key
+- Runs the PHPUnit suite with SQLite in memory
+
+## Troubleshooting
+
+### Missing `sessions` Table
+
+If you see:
+
+```text
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'laravel.sessions' doesn't exist
+```
+
+Run migrations:
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+### Google OAuth Missing `client_id`
+
+If Google shows `Missing required parameter: client_id`, create an active Google OAuth Setup record in the admin dashboard or configure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env`, then run:
+
+```bash
+./vendor/bin/sail artisan optimize:clear
+```
+
+### Google OAuth Invalid Scope
+
+Use the exact Gmail scope:
+
+```text
+https://www.googleapis.com/auth/gmail.modify
+```
+
+Do not use `gmail.modify` without the full URL.
+
+### Queue Jobs Are Not Running
+
+Start a queue worker:
+
+```bash
+./vendor/bin/sail artisan queue:work
+```
+
+Check failed jobs:
+
+```bash
+./vendor/bin/sail artisan queue:failed
+```
+
+Retry failed jobs:
+
+```bash
+./vendor/bin/sail artisan queue:retry all
+```
+
+## Project Documentation
+
+Project docs are in `docs/`:
+
+- `docs/architecture/`
+- `docs/implementation/`
+- `docs/operations/`
+- `docs/testing/`
+- `docs/tech-debt/`
+
+Agent and contribution conventions are in:
+
+```text
+agents/claude.md
+```
+
+## Security Notes
+
+- Gmail access tokens, refresh tokens, and Google OAuth client secrets are encrypted by Laravel casts.
+- Email previews allow images and fonts but block scripts.
+- Reply sending and restricted automation actions are intentionally gated.
+- Do not commit real OAuth credentials or production secrets.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-source under the MIT license.
