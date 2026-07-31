@@ -1,0 +1,56 @@
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tehran
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: deps
+      include: scope
+    labels:
+      - dependencies
+      - security
+    groups:
+      laravel:
+        patterns:
+          - laravel/*
+          - illuminate/*
+      filament:
+        patterns:
+          - filament/*
+      testing:
+        dependency-type: development
+        patterns:
+          - phpunit/*
+          - mockery/*
+          - nunomaduro/*
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:30"
+      timezone: Asia/Tehran
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: deps
+      include: scope
+    labels:
+      - dependencies
+      - security
+    groups:
+      frontend-build:
+        patterns:
+          - vite
+          - laravel-vite-plugin
+          - tailwindcss
+          - "@tailwindcss/*"
+      frontend-tooling:
+        dependency-type: development
+        patterns:
+          - concurrently

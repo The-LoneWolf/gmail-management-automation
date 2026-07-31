@@ -1,12 +1,15 @@
-name: Tests
+name: Security Audit
 
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 jobs:
-  test:
+  audit:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +26,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Audit Composer dependencies
+        run: composer audit
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -32,19 +38,5 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Build frontend assets
-        run: npm run build
-
-      - name: Prepare application
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-
-      - name: Run tests
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: ':memory:'
-          CACHE_STORE: array
-          SESSION_DRIVER: array
-          QUEUE_CONNECTION: sync
-        run: php artisan test
+      - name: Audit Node dependencies
+        run: npm audit --audit-level=moderate

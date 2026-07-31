@@ -337,6 +337,13 @@ Project docs are in `docs/`:
 - `docs/testing/`
 - `docs/tech-debt/`
 
+Security update workflow:
+
+```text
+docs/operations/security-updates.md
+agents/security-update.md
+```
+
 Agent and contribution conventions are in:
 
 ```text
