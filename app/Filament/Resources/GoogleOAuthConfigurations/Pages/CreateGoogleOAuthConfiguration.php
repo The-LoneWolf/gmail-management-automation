@@ -29,74 +29,77 @@ class CreateGoogleOAuthConfiguration extends CreateRecord
     {
         $redirectUri = e(url('/gmail/oauth/callback'));
 
+        $linkStyle = 'color:#1d4ed8;font-weight:700;text-decoration:none;';
+        $stepStyle = 'border:1px solid #e5e7eb;border-radius:10px;padding:18px 20px;background:#ffffff;box-shadow:0 1px 2px rgba(15,23,42,.05);';
+        $titleStyle = 'margin:0 0 10px;font-size:15px;font-weight:800;color:#111827;';
+        $listStyle = 'margin:0;padding-left:20px;color:#374151;';
+        $codeStyle = 'margin-top:12px;border-radius:8px;background:#111827;color:#f9fafb;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.7;overflow:auto;';
+
         return new HtmlString(<<<HTML
-            <div class="space-y-6 text-sm leading-6 text-gray-700 dark:text-gray-200">
-                <div class="rounded-lg border border-warning-300 bg-warning-50 p-4 text-warning-900 dark:border-warning-700 dark:bg-warning-950 dark:text-warning-100">
-                    Keep this browser tab open while you configure Google Cloud. You will copy the Client ID and Client secret back into this form.
+            <div style="font-size:14px;line-height:1.65;color:#374151;">
+                <div style="margin-bottom:18px;border:1px solid #facc15;border-radius:10px;background:#fefce8;padding:14px 16px;color:#713f12;">
+                    <strong>Before you start:</strong> keep this tab open. You will configure Google Cloud in a new tab, then copy the Client ID and Client secret back into this form.
                 </div>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">1. Create or select a Google Cloud project</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Open <a class="font-medium text-primary-600 underline" href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a>.</li>
-                        <li>Select your project from the top project switcher, or create a new project for this app.</li>
-                    </ol>
-                </section>
+                <div style="display:grid;gap:14px;">
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">1. Create or select a Google Cloud project</h3>
+                        <ol style="{$listStyle}">
+                            <li>Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style="{$linkStyle}">Google Cloud Console</a>.</li>
+                            <li>Select your project from the top project switcher, or create a new project for this app.</li>
+                        </ol>
+                    </section>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">2. Enable Gmail API</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Open <a class="font-medium text-primary-600 underline" href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener noreferrer">Gmail API in the API Library</a>.</li>
-                        <li>Click <strong>Enable</strong> for the selected project.</li>
-                    </ol>
-                </section>
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">2. Enable Gmail API</h3>
+                        <ol style="{$listStyle}">
+                            <li>Open <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" rel="noopener noreferrer" style="{$linkStyle}">Gmail API in the API Library</a>.</li>
+                            <li>Click <strong>Enable</strong> for the selected project.</li>
+                        </ol>
+                    </section>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">3. Configure Google Auth Platform</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Open <a class="font-medium text-primary-600 underline" href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener noreferrer">Google Auth Platform</a>.</li>
-                        <li>In <strong>Branding</strong>, set the app name, support email, and developer contact email.</li>
-                        <li>In <strong>Audience</strong>, keep publishing status as <strong>Testing</strong> while developing.</li>
-                        <li>Add your Gmail address under <strong>Test users</strong>. Only test users can connect while the app is in Testing mode.</li>
-                    </ol>
-                </section>
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">3. Configure Google Auth Platform</h3>
+                        <ol style="{$listStyle}">
+                            <li>Open <a href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener noreferrer" style="{$linkStyle}">Google Auth Platform</a>.</li>
+                            <li>In <strong>Branding</strong>, set the app name, support email, and developer contact email.</li>
+                            <li>In <strong>Audience</strong>, keep publishing status as <strong>Testing</strong> while developing.</li>
+                            <li>Add your Gmail address under <strong>Test users</strong>. Only test users can connect while the app is in Testing mode.</li>
+                        </ol>
+                    </section>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">4. Add OAuth scopes</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Open <a class="font-medium text-primary-600 underline" href="https://console.cloud.google.com/auth/scopes" target="_blank" rel="noopener noreferrer">Data Access / Scopes</a>.</li>
-                        <li>Add these scopes:</li>
-                    </ol>
-                    <div class="rounded-lg bg-gray-950 p-4 font-mono text-xs text-white">
-                        openid<br>
-                        email<br>
-                        profile<br>
-                        https://www.googleapis.com/auth/gmail.modify
-                    </div>
-                    <p>The Gmail modify scope lets the app read Gmail messages and observe labels such as read, unread, starred, inbox, and archived.</p>
-                </section>
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">4. Add OAuth scopes</h3>
+                        <ol style="{$listStyle}">
+                            <li>Open <a href="https://console.cloud.google.com/auth/scopes" target="_blank" rel="noopener noreferrer" style="{$linkStyle}">Data Access / Scopes</a>.</li>
+                            <li>Add these exact scopes:</li>
+                        </ol>
+                        <div style="{$codeStyle}">openid<br>email<br>profile<br>https://www.googleapis.com/auth/gmail.modify</div>
+                        <p style="margin:12px 0 0;color:#4b5563;">The Gmail modify scope lets the app read Gmail messages and observe labels such as read, unread, starred, inbox, and archived.</p>
+                    </section>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">5. Create the OAuth client</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Open <a class="font-medium text-primary-600 underline" href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Clients</a>.</li>
-                        <li>Click <strong>Create client</strong>.</li>
-                        <li>Choose <strong>Web application</strong>.</li>
-                        <li>For local development, add this authorized redirect URI:</li>
-                    </ol>
-                    <div class="rounded-lg bg-gray-950 p-4 font-mono text-xs text-white">{$redirectUri}</div>
-                    <p>If you deploy this app later, add the production callback URL too, for example <code>https://your-domain.com/gmail/oauth/callback</code>.</p>
-                </section>
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">5. Create the OAuth client</h3>
+                        <ol style="{$listStyle}">
+                            <li>Open <a href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer" style="{$linkStyle}">OAuth Clients</a>.</li>
+                            <li>Click <strong>Create client</strong>.</li>
+                            <li>Choose <strong>Web application</strong>.</li>
+                            <li>For local development, add this authorized redirect URI:</li>
+                        </ol>
+                        <div style="{$codeStyle}">{$redirectUri}</div>
+                        <p style="margin:12px 0 0;color:#4b5563;">If you deploy this app later, add the production callback URL too, for example <code style="background:#f3f4f6;border-radius:4px;padding:1px 5px;color:#111827;">https://your-domain.com/gmail/oauth/callback</code>.</p>
+                    </section>
 
-                <section class="space-y-3">
-                    <h3 class="text-base font-semibold text-gray-950 dark:text-white">6. Save credentials in this app</h3>
-                    <ol class="list-decimal space-y-2 pl-5">
-                        <li>Copy the Google <strong>Client ID</strong> into the Client ID field.</li>
-                        <li>Copy the Google <strong>Client secret</strong> into the Client secret field.</li>
-                        <li>Keep the redirect URI and scopes in this form exactly aligned with Google Cloud.</li>
-                        <li>Save this OAuth configuration, then go to <strong>Gmail Accounts</strong> and click <strong>Connect Gmail</strong>.</li>
-                    </ol>
-                </section>
+                    <section style="{$stepStyle}">
+                        <h3 style="{$titleStyle}">6. Save credentials in this app</h3>
+                        <ol style="{$listStyle}">
+                            <li>Copy the Google <strong>Client ID</strong> into the Client ID field.</li>
+                            <li>Copy the Google <strong>Client secret</strong> into the Client secret field.</li>
+                            <li>Keep the redirect URI and scopes in this form exactly aligned with Google Cloud.</li>
+                            <li>Save this OAuth configuration, then go to <strong>Gmail Accounts</strong> and click <strong>Connect Gmail</strong>.</li>
+                        </ol>
+                    </section>
+                </div>
             </div>
         HTML);
     }
