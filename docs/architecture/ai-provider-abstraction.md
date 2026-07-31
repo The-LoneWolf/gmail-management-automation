@@ -6,7 +6,7 @@ This document describes how this project should add AI API credentials and model
 
 ## Recommendation
 
-Build an application-owned AI provider abstraction first. Use an OpenAI-compatible chat-completions request shape as the baseline transport, then add provider adapters for features that are not portable.
+Build an application-owned AI provider abstraction first, and use Laravel AI SDK as the preferred runtime dependency if it supports the project constraints during implementation. Use OpenAI-compatible providers as the baseline transport, then add provider adapters for features that are not portable.
 
 This gives the dashboard one consistent way to store credentials and policies while still allowing these provider types:
 
@@ -15,7 +15,8 @@ This gives the dashboard one consistent way to store credentials and policies wh
 - LiteLLM Proxy, using a user-owned base URL such as `https://ai.example.com`.
 - OpenCode-compatible providers and OpenCode Zen-style gateways.
 - Direct provider adapters later, for APIs that are worth first-class support.
-- Prism PHP as an optional internal implementation detail later, not as the dashboard data model.
+- Laravel AI SDK as the preferred implementation detail for agents, structured output, tools, testing helpers, human approvals, OpenRouter, and OpenAI-compatible endpoints.
+- Prism PHP only as a fallback candidate if Laravel AI SDK cannot satisfy a required provider behavior.
 
 Do not design the database around one SDK's config format. Store durable provider/account/model policy in our own tables, then let adapters translate that into SDK or HTTP calls.
 
@@ -31,7 +32,11 @@ Google Gemini now documents OpenAI compatibility through an OpenAI-style base UR
 
 OpenAI and Anthropic expose richer native features, including tool use, structured outputs, streaming, and agent-oriented APIs. These should be modeled as capabilities rather than assumed for every provider. Sources: [OpenAI function calling and structured outputs](https://help.openai.com/en/articles/8555517-function-calling-in-the-openai-api), [Anthropic API overview](https://platform.claude.com/docs/en/api/overview).
 
-Prism PHP is a Laravel/PHP-friendly option with providers for text, structured output, embeddings, images, streaming, and custom providers. It can be useful inside adapters, but the project should not rely on Prism config as the source of truth because this app needs encrypted dashboard-managed credentials, per-provider policies, audit logs, and approval workflows. Source: [Prism custom providers](https://prismphp.com/advanced/custom-providers/).
+Laravel AI SDK is the strongest Laravel-native candidate. It provides a unified API for OpenAI, Anthropic, Gemini, OpenRouter, OpenAI-compatible providers, structured output, tools, queueing, testing helpers, failover, embeddings, files, and human tool approval. It also supports custom base URLs, including proxy services such as LiteLLM and Azure OpenAI Gateway. Source: [Laravel AI SDK](https://laravel.com/docs/13.x/ai-sdk).
+
+Laravel Boost is useful for AI-assisted development because it provides Laravel-focused MCP tools, guidelines, skills, and documentation search for coding agents. It is not a runtime AI provider abstraction for this dashboard, so it should be installed separately as a dev tool only when we want those agent capabilities. Source: [Laravel Boost](https://laravel.com/docs/13.x/boost).
+
+Prism PHP is also a Laravel/PHP-friendly option with providers for text, structured output, embeddings, images, streaming, and custom providers. It can be useful as a fallback adapter candidate, but the project should prefer Laravel AI SDK first and should not rely on either package's config as the source of truth because this app needs encrypted dashboard-managed credentials, per-provider policies, audit logs, and approval workflows. Source: [Prism custom providers](https://prismphp.com/advanced/custom-providers/).
 
 ## Design Goals
 
@@ -246,12 +251,13 @@ Recommended DTOs:
 
 Recommended adapters:
 
+- `LaravelAiSdkClient`
 - `OpenAiCompatibleClient`
 - `OpenRouterClient`
 - `LiteLlmProxyClient`
 - `NativeOpenAiClient`
 - `NativeAnthropicClient`
-- `PrismAiClient` if Prism is adopted later
+- `PrismAiClient` only if Prism is adopted later as a fallback
 
 Recommended factory:
 
@@ -261,6 +267,7 @@ final class AiClientFactory
     public function forProvider(AiProvider $provider): AiClient
     {
         return match ($provider->type) {
+            AiProviderType::LaravelAiSdk => new LaravelAiSdkClient($provider),
             AiProviderType::OpenRouter => new OpenRouterClient($provider),
             AiProviderType::LiteLlmProxy => new LiteLlmProxyClient($provider),
             AiProviderType::OpenAiCompatible => new OpenAiCompatibleClient($provider),
@@ -365,16 +372,19 @@ Jobs should retry transient errors such as rate limits, provider unavailability,
 
 ## Dependency Decision
 
-Start without adding a heavy provider dependency. Laravel's HTTP client is enough for the first `OpenAiCompatibleClient`.
+Prefer `laravel/ai` for the first real AI integration phase, but keep it behind this project's `AiClient` and `AiClientFactory` boundary. Laravel AI SDK already covers the core capabilities this app needs: OpenRouter, OpenAI-compatible providers, custom base URLs for gateways, structured output, queueing, testing helpers, failover, and human approval flows.
 
-Consider Prism PHP when one of these becomes true:
+Keep the dashboard-owned tables as the source of truth. At runtime, an adapter can translate the selected `AiProvider`, `AiModel`, and `AiFeatureSetting` records into Laravel AI SDK provider/model options.
 
-- We need several native providers immediately.
-- We want Prism's structured output abstractions.
-- We want streaming or embeddings across multiple providers.
-- The dependency reduces code while preserving our dashboard-owned provider model.
+Use Laravel's HTTP client directly only if a specific OpenAI-compatible gateway cannot be expressed through Laravel AI SDK configuration or provider options.
 
-Even if Prism is adopted, keep `AiClient` and `AiClientFactory` as the project boundary. Prism should sit behind an adapter so the rest of the app does not depend on one package.
+Consider Prism PHP only when one of these becomes true:
+
+- Laravel AI SDK does not support a required provider or endpoint behavior.
+- Laravel AI SDK's provider configuration cannot be driven cleanly from encrypted dashboard records.
+- Prism reduces code while preserving the app-owned provider model.
+
+Do not install `laravel/boost` as part of the runtime AI provider implementation. Install `laravel/boost --dev` separately when we want Laravel-aware MCP tools, local project inspection, and generated AI coding guidelines. Boost should improve development workflow, not become part of the email automation runtime.
 
 ## Implementation Phases
 
@@ -384,7 +394,9 @@ Even if Prism is adopted, keep `AiClient` and `AiClientFactory` as the project b
 - Add encrypted casts for keys and secret headers.
 - Add `AiProviderType` and `AiCapability` enums.
 - Add Filament resources for providers, models, and feature settings.
-- Add `OpenAiCompatibleClient`.
+- Add `laravel/ai` if it works with the current Laravel version in this repository.
+- Add `LaravelAiSdkClient` behind the project-owned `AiClient` contract.
+- Add direct `OpenAiCompatibleClient` only if a configured gateway cannot be represented through Laravel AI SDK.
 - Add connection test action.
 
 ### Phase B: Classification Integration
